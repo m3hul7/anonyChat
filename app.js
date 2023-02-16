@@ -14,15 +14,15 @@ let users= {}
 let count = 0
 
 io.use((socket, next) => {
-    socket.on('setUserName', (userName) => {
-        if(![...Object.keys(users)].includes(userName)) {
-            users[`${userName}`] = socket.id
-            next()
-        }
-        else {
-            next(new Error('User Name already exists!'))
-        }
-    })
+    // socket.on('setUserName', (userName) => {
+    //     if(![...Object.keys(users)].includes(userName)) {
+    //         users[`${userName}`] = socket.id
+    //         next()
+    //     }
+    //     else {
+    //         next(new Error('User Name already exists!'))
+    //     }
+    // })
     next()
 })
 
@@ -35,6 +35,13 @@ io.on('connection', (socket) => {
     })
 
     socket.on('disconnect', function () {
+        if(Object.keys(users).length){
+            Object.keys(users).forEach((ele) => {
+                if(users[`${ele}`]== socket.id) {
+                    delete users[`${ele}`]
+                }
+            })
+        }
         console.log(`user number ${count} disconnected`)
         count--
     })
@@ -43,12 +50,21 @@ io.on('connection', (socket) => {
         socket.broadcast.emit(`typing`, data);
     })
 
-    if(Object.keys(users).length) {
+    socket.on('setUserName', (userName) => {
+        if(![...Object.keys(users)].includes(userName)) {
+            users[`${userName}`] = socket.id
+        }
+        else {
+            // next(new Error('User Name already exists!'))
+        }
+    })
+
+    // if(Object.keys(users).length) {
         setInterval(() => {
             // console.log(socket.client.conn.server.clientsCount,[...io.sockets.sockets.keys()])
             socket.emit('alive', { users })
-        }, 1000)
-    }
+        }, 10000)
+    // }
 
     // room
 
@@ -63,11 +79,12 @@ io.on('connection', (socket) => {
     })
 
     socket.on('chat', function (data) {
-        socket.to(data.id).emit('chat', { message: data.msg })
+        // console.log(data, users[`${data.name}`])
+        socket.to(users[`${data.receiver}`]).emit('chat', { data })
     })
 
     socket.on('open_chat', function (data) {
-        socket.emit('open_chat', { message: data.msg })
+        socket.broadcast.emit('open_chat', { message: data })
     })
 
 })
