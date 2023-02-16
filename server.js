@@ -6,4 +6,4 @@ dotenv.config({
 
 const server = require('./app')
 
-server.listen(2121, () => console.log('server starts'))
+server.listen(21321, () => console.log('server starts'))
