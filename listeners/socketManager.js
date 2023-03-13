@@ -19,7 +19,7 @@ module.exports = (io) => {
         const receiverSocketId = mapperfix.filter(ele => ele.userId == data.receiver)
 
         if(receiverSocketId.length != 0) {
-            console.log('inside IF')
+            console.log('inside IF', receiverSocketId[0]['socketId'])
             this.to(receiverSocketId[0]['socketId']).emit('chat',  data )
         } else {
             console.log('inside ELSE')
